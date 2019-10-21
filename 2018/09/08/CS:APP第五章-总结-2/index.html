@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: ''
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="优化程序性能这一章因为没有对应的Lab,所以写一下总结防止自己遗忘,本章主要讲述了限制程序性能的一些因素以及如何去分析限制程序运行效率的因素和改进措施，解释了一些GCC对程序进行“非常小心”的优化的策略和为什么要“非常小心”的原因这一部分内容是根据CSAPP这本书第五章知识总结而成，可能到你见到这篇文章的时候GCC已经更新导致某些“魔术”不具有了实用价值，甚至于可能出现错误（也可能是我总结错误），">
+<meta name="keywords" content="算法,Codeforces">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS:APP 第五章-总结">
+<meta property="og:url" content="https://codefish.info/2018/09/08/CS:APP第五章-总结-2/index.html">
+<meta property="og:site_name" content="Yu">
+<meta property="og:description" content="优化程序性能这一章因为没有对应的Lab,所以写一下总结防止自己遗忘,本章主要讲述了限制程序性能的一些因素以及如何去分析限制程序运行效率的因素和改进措施，解释了一些GCC对程序进行“非常小心”的优化的策略和为什么要“非常小心”的原因这一部分内容是根据CSAPP这本书第五章知识总结而成，可能到你见到这篇文章的时候GCC已经更新导致某些“魔术”不具有了实用价值，甚至于可能出现错误（也可能是我总结错误），">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-28T15:41:39.012Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CS:APP 第五章-总结">
+<meta name="twitter:description" content="优化程序性能这一章因为没有对应的Lab,所以写一下总结防止自己遗忘,本章主要讲述了限制程序性能的一些因素以及如何去分析限制程序运行效率的因素和改进措施，解释了一些GCC对程序进行“非常小心”的优化的策略和为什么要“非常小心”的原因这一部分内容是根据CSAPP这本书第五章知识总结而成，可能到你见到这篇文章的时候GCC已经更新导致某些“魔术”不具有了实用价值，甚至于可能出现错误（也可能是我总结错误），">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Yu" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://codefish.info/2018/09/08/CS:APP第五章-总结-2/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  
+  <title>CS:APP 第五章-总结 | Yu</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yu</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+</div>
+    </header>
+
+    
+  
+  
+
+  
+
+  <a href="https://github.com/moooyo" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewbox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a>
+
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://codefish.info/2018/09/08/CS:APP第五章-总结-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Leng Yu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yu">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CS:APP 第五章-总结
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-08 12:53:03" itemprop="dateCreated datePublished" datetime="2018-09-08T12:53:03+08:00">2018-09-08</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-28 23:41:39" itemprop="dateModified" datetime="2019-07-28T23:41:39+08:00">2019-07-28</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Codeforces/" itemprop="url" rel="index"><span itemprop="name">Codeforces</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="优化程序性能"><a href="#优化程序性能" class="headerlink" title="优化程序性能"></a>优化程序性能</h1><p>这一章因为没有对应的Lab,所以写一下总结防止自己遗忘,本章主要讲述了限制程序性能的一些因素以及如何去分析限制程序运行效率的因素和改进措施，解释了一些GCC对程序进行“非常小心”的优化的策略和为什么要“非常小心”的原因<br><strong>这一部分内容是根据CSAPP这本书第五章知识总结而成，可能到你见到这篇文章的时候GCC已经更新导致某些“魔术”不具有了实用价值，甚至于可能出现错误（也可能是我总结错误），发现了请及时和我联系</strong></p>
+<h2 id="GCC的一些优化策略"><a href="#GCC的一些优化策略" class="headerlink" title="GCC的一些优化策略"></a>GCC的一些优化策略</h2><h3 id="限制"><a href="#限制" class="headerlink" title="限制"></a>限制</h3><p>在前面我们知道，可以采用命令行选项 “-Og”掉用GCC让他只执行一些非常基本的优化，用选项”-O1”和”-O2”等让他们<br>使用更大量的优化。这样虽然可能会加快程序的运行效率，但是很有可能增大程序的规模，或者导致我们的<br>调试难以及进行。<br>编译器只会进行“安全的”优化，意思是说编译器”期望“不管什么情况下优化结果和原始代码运行<br>相同的情况下才可能进行优化，不希望因为优化导致程序运行错误。比如说这个例子</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">twiddle1</span><span class="params">(<span class="keyword">long</span> *xp,<span class="keyword">long</span> *yp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  *xp+=*yp;</span><br><span class="line">  *xp+=*yp;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">twiddle2</span><span class="params">(<span class="keyword">long</span> *xp,<span class="keyword">long</span> *yp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  *xp+=<span class="number">2</span>* *yp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这两个函数看起来似乎是一致的，而且因为第一个函数要进行6次内存引用，两次加法，第二个<br>函数只需要进行3次内存引用，一次乘法一次加法，我们可能会认为编译器会把第一种情况优化为<br>第二种情况，但是编译器不会这样做，因为如果当xp和yp指向同一块内存的时候，两个函数的运行结果<br>是不一样的，这就可能会导致优化的程序运行不符合我们的预期。所以不会进行这样的优化。<br>而看这个例子</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">f</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">func1</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> f()+f()+f()+f();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">func2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">4</span>*f();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>乍一看这两个函数应该也是一样的，但是如果f函数有副作用，比如f是下面这种形式</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">f</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> count++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就会导致func1和func2运行的不一致，而编译器去判断一个函数有没有副作用是比较困难的，所以<br>一般来说也不会进行这样的优化。</p>
+<h3 id="改进措施"><a href="#改进措施" class="headerlink" title="改进措施"></a>改进措施</h3><p>对于twiddle1这种情况，应该由编写代码的人去判断是否有可能出现指向同一块区域，如果不存在这种<br>情况，应该由我们手动的改为twiddle2这种情况，而不能依靠GCC去帮我们实现。而对多次函数掉用<br>产生的开销，我们可以采用内联函数替换(inline substitution)，为了使用这个功能我们需要<br>在命令行中用”-finline”或者比”-O1”更高的优化等级才能开启，但这样也是有限制的，目前位置<br>GCC只会尝试在单个文件内进行内联替换，这就表明我们如果是调用库或其他的模块就不能使用这个功能<br>而且替换后的代码在进行调试的时候难度会上升</p>
+<h2 id="程序编写时进行调整以期提高性能"><a href="#程序编写时进行调整以期提高性能" class="headerlink" title="程序编写时进行调整以期提高性能"></a>程序编写时进行调整以期提高性能</h2><h3 id="代码移动"><a href="#代码移动" class="headerlink" title="代码移动"></a>代码移动</h3><p>例如对于这样的结构体</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">  <span class="keyword">long</span> len;</span><br><span class="line">  <span class="keyword">data_t</span> *data;</span><br><span class="line">&#125;vec_rec,*vec_ptr;</span><br></pre></td></tr></table></figure>
+
+<p>有这样的一些对应方法</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">get_vec_element</span><span class="params">(vec_ptr v,<span class="keyword">long</span> index, <span class="keyword">data_t</span> *dest)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(index&lt;<span class="number">0</span>||index&gt;=v-&gt;len)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  *dest=v-&gt;data[index];</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">vec_lenght</span><span class="params">(vec_ptr v)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> vec-&gt;len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们通过define来定义OP和INDENT，那么如果我们考虑</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INDENT 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> OP *</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">combine1</span><span class="params">(vec_ptr v,<span class="keyword">data_t</span> *dest)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  *dest=INDENT;</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;vec_lenght(v);++i)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">data_t</span> val;</span><br><span class="line">    get_vec_element(v,<span class="number">1</span>,&amp;val);</span><br><span class="line">    *dest=*dest OP val;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>分析我们的代码发现其实vec的长度是不会有变化的，我们在每一次循环的时候都去掉用vec_lenght<br>增加了对内存的不必要引用，于是把vec_lenght写在循环外面可以比较有效的提高效率</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">combine1</span><span class="params">(vec_ptr v,<span class="keyword">data_t</span> *dest)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  *dest=INDENT;</span><br><span class="line">  <span class="keyword">long</span> lenght=vec_lenght(v);</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;lenght;++i)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">data_t</span> val;</span><br><span class="line">    get_vec_element(v,<span class="number">1</span>,&amp;val);</span><br><span class="line">    *dest=*dest OP val;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>特别的，如果vec_lenght不是$O(1)$而是$O(n)$或者其他的话，将其放在循环中甚至还会增加程序<br>的时间复杂度，比如如果vec_lenght是strlen的话，因为strlen是$O(n)$的，程序时间复杂度会显著增加</p>
+<h3 id="减少过程掉用"><a href="#减少过程掉用" class="headerlink" title="减少过程掉用"></a>减少过程掉用</h3><p>事实上我们没必要每一次都去调用get_vec_element，虽然我们可能在其中做了一些比如边界检查<br>等操作，但是仔细分析我们这个循环，是不会利用到这些操作的，那么我们可以改写成这样</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data_t</span> *get_vec_start(vec_ptr v)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> v-&gt;data;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">combine3</span><span class="params">(vec_ptr v,<span class="keyword">data_t</span> *dest)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  *dest=INDENT;</span><br><span class="line">  <span class="keyword">long</span> lenght=vec_lenght(v);</span><br><span class="line">  <span class="keyword">data_t</span> *data=get_vec_start(v);</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;lenght;++i)</span><br><span class="line">  &#123;</span><br><span class="line">    *dest=*dest OP data[i];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们就减少了函数调用时的开销，虽然这一提升并不明显。</p>
+<h3 id="消除不必要的内存引用"><a href="#消除不必要的内存引用" class="headerlink" title="消除不必要的内存引用"></a>消除不必要的内存引用</h3><p>事实上在上面的函数中我们将运算的中间过程存储在内存区域中，这样会频繁的去读写dest区域的数据，<br>这往往会导致程序性能受到影响，如果我们考虑将中间过程存储在寄存器中，程序的性能会有比较明显的提升</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">combine4</span><span class="params">(vec_ptr v,<span class="keyword">data_t</span> *dest)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  <span class="keyword">data_t</span> acc=INDET;</span><br><span class="line">  <span class="keyword">long</span> lenght=vec_lenght(v);</span><br><span class="line">  <span class="keyword">data_t</span> *data=get_vec_start(v);</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;lenght;++i)</span><br><span class="line">  &#123;</span><br><span class="line">    acc=acc OP data[i];</span><br><span class="line">  &#125;</span><br><span class="line">  *dest=acc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而编译器之所以不自动的进行这个转化是因为如果dest指向了data中的一块区域，那么这两个函数的<br>结果是不一致的。</p>
+<h2 id="利用现代处理器的特性进行优化"><a href="#利用现代处理器的特性进行优化" class="headerlink" title="利用现代处理器的特性进行优化"></a>利用现代处理器的特性进行优化</h2><p>这一部分主要是讲述了如何利用现代处理器的一些特性进行代码优化。举个例子，如果一个参考机<br>有8个功能单元，分别为0-7，那么每个单元的功能都是不同的:<br>0:整数运算、浮点乘法、整数和浮点除法、分支<br>1:整数运算、浮点加法、整数乘法、浮点乘法<br>2:加载、地址计算<br>3:加载、地址计算<br>4:存储<br>5:整数运算<br>6:整数运算、分支<br>7:存储地址运算<br>可以看到不同功能所有用的功能模块数量是不一样的，比如整数加法有四个模块，而浮点除法只有一个<br>模块，只有当充分利用这些模块的时候代码性能才会达到最优。<br>另一方面，现代处理器利用非常复杂的技术手段实现了乱序处理的功能，处理器不一定按照程序顺序<br>进行执行，可以乱序的执行一些操作，然后通过复杂的技术手段来保证程序在乱序执行下的结果是和<br>顺序执行一致的。<br>以combine4为例，其中循环部分汇编代码为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.L25</span><br><span class="line">  vmulsd  (%rdx),%xmm0,%xmm0</span><br><span class="line">  addq  $8,%rdx</span><br><span class="line">  cmpq  %rax,%rdx</span><br><span class="line">  jne   .L25</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到这段代码不断的从%rdx指向的地址处读入数据乘上%xmm0存入%xmm0,这就表明我们需要<br>等待上一次的%xmm0完成计算之后才能进行下一次%xmm0相关的计算，导致无法充分的利用处理器单元<br>为了优化这样的情况，可以采用循环展开技术</p>
+<h3 id="循环展开"><a href="#循环展开" class="headerlink" title="循环展开"></a>循环展开</h3><h4 id="k-1的循环展开"><a href="#k-1的循环展开" class="headerlink" title="k*1的循环展开"></a>k*1的循环展开</h4><p>我们还是考虑combine4的情况，因为每一次循环的时候我们都是只采取一次操作，这样就导致了较高<br>的循环开销，如果我们变换成这样的形式</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">combine4</span><span class="params">(vec_ptr v,<span class="keyword">data_t</span> *dest)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  <span class="keyword">data_t</span> acc=INDET;</span><br><span class="line">  <span class="keyword">long</span> lenght=vec_lenght(v);</span><br><span class="line">  <span class="keyword">long</span> limit=lenght<span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">data_t</span> *data=get_vec_start(v);</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;limit;i=i+<span class="number">2</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    acc=(acc OP data[i]) OP data[i+<span class="number">1</span>];</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span>(;i&lt;lenght;++i)</span><br><span class="line">  &#123;</span><br><span class="line">    acc=acc OP data[i];</span><br><span class="line">  &#125;</span><br><span class="line">  *dest=acc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样在每一次循环中我们进行了两次操作，将循环带来的开销降低了一半，类似的，如果在循环中<br>进行k次操作，就称之为k*1路循环展开。<br>事实上这个优化很容易实现，编译器优化选项开的足够高的话，GCC甚至会自动的帮我们完成</p>
+<h4 id="k-k路循环展开"><a href="#k-k路循环展开" class="headerlink" title="k*k路循环展开"></a>k*k路循环展开</h4><p>前面的k*1路循环展开虽然降低了循环带来的额外开销，但是还是受限于在%xmm0这个寄存器上运算，没有充分<br>的利用处理器的所有运算单元，事实上如果我们考虑将奇数元素存储到acc1上，偶数元素存储到acc2上<br>这样写出如下的代码</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">combine4</span><span class="params">(vec_ptr v,<span class="keyword">data_t</span> *dest)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  <span class="keyword">data_t</span> acc1=INDNT;</span><br><span class="line">  <span class="keyword">data_t</span> acc2=INDNT;</span><br><span class="line">  <span class="keyword">long</span> lenght=vec_lenght(v);</span><br><span class="line">  <span class="keyword">long</span> limit=lenght<span class="number">-1</span>;</span><br><span class="line">  <span class="keyword">data_t</span> *data=get_vec_start(v);</span><br><span class="line">  <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;limit;i=i+<span class="number">2</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    acc1=acc1 OP data[i];</span><br><span class="line">    acc2=acc2 OP data[i+<span class="number">1</span>];</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span>(;i&lt;lenght;++i)</span><br><span class="line">  &#123;</span><br><span class="line">    acc1=acc1 OP data[i];</span><br><span class="line">  &#125;</span><br><span class="line">  *dest=acc1 OP acc2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样acc1和acc2就存储到了不同的寄存器上，每一次循环的时候就并行的利用两个运算单元进行两次<br>乘法运算，提高了代码的并行性，程序的性能也会有显著的提升。这样利用k个寄存器进行并行运算<br>称为k*k路循环展开，一般来说，对于延迟为L的操作，如果处理器有C个对应的运算单元，在$k\geq L\times C$的时候<br>性能可以达到这种优化的最大值。</p>
+<h4 id="重新结合变换"><a href="#重新结合变换" class="headerlink" title="重新结合变换"></a>重新结合变换</h4><p>类似于</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acc =(acc OP data[i]) OP data[i+<span class="number">1</span>];</span><br></pre></td></tr></table></figure>
+
+<p>这样的语句，如果变换成</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">acc = acc OP (data[i] OP data[i+<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+
+<p>的形式，成为2*1a循环展开，这样会使得程序性能有很大的提升，因为data[i]和data[i+1]的运算不依赖于<br>acc的值，因为处理器的乱序执行功能他甚至可能被先行的算出来等待后续的需求，使得程序性能有显著的提升。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>总的来说，这一部分的优化都是立足于去使用更多的运算器运算单元，只有当使用了全部的运算单元的时候，<br>程序性能才会达到最大。通常，使用k*k路循环展开是非常有效的一种方式。</p>
+<h3 id="一些限制因素"><a href="#一些限制因素" class="headerlink" title="一些限制因素"></a>一些限制因素</h3><h4 id="寄存器溢出"><a href="#寄存器溢出" class="headerlink" title="寄存器溢出"></a>寄存器溢出</h4><p>根据第三章的知识，如果使用的变量数超过了可用的寄存器数，就会在栈帧上开辟空间，这样又会去读写内存，导致程序<br>运行效率变低，所以同一函数内变量不应该太多（尽量在寄存器内完成操作）,比如循环展开k*k时k不能取得太大</p>
+<h4 id="分支预测和预测错误处罚"><a href="#分支预测和预测错误处罚" class="headerlink" title="分支预测和预测错误处罚"></a>分支预测和预测错误处罚</h4><p>在前面我们知道现代处理器会进行投机执行，也就是因为乱序执行的特性，现代处理器不一定只在执行<br>当年需要执行的指令，他可能在执行一些后面待执行的指令并把结果悬留下来等待使用，于是如果<br>在碰到分支的时候，就要预测进入或者不进入分支，如果预测失败就会导致前面做的工作全部丢掉<br>重新装填流水线，这个惩罚是比较严重的。为了避免这个结果，就要写出尽可能能让编译器翻译成条件<br>转移的代码，也就是先预先计算两个方向上的值，然后到确定的时候选择其中一个，这样就能最大限度减少<br>惩罚，因为猜测就算错误，我们还是预先计算出了待定的值。</p>
+<h5 id="不要过分关心可预测的分支"><a href="#不要过分关心可预测的分支" class="headerlink" title="不要过分关心可预测的分支"></a>不要过分关心可预测的分支</h5><p>实际上GCC在这方面表现得还是比较聪明的，比如如果一个循环的话，一般情况下都会预测继续执行，如果是<br>边界检查的话，一般都预测为在边界内，所以可预测的分支不应该过分的关注，更应该关注那些随机的，不可预测<br>的分支。</p>
+<h5 id="书写适合用条件传送实现的代码"><a href="#书写适合用条件传送实现的代码" class="headerlink" title="书写适合用条件传送实现的代码"></a>书写适合用条件传送实现的代码</h5><p>对于不可预测的分支，就应该书写更容易被GCC产生条件传送的代码。这一类代码往往都是更“功能性”的<br>，用条件才做来计算值，然后用这些值跟新状态。比如</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">minmax1</span><span class="params">(<span class="keyword">long</span> a[],<span class="keyword">long</span> b[],<span class="keyword">long</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;++i)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span>(a[i]&gt;b[i])</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">long</span> t=a[i];</span><br><span class="line">      a[i]=b[i];</span><br><span class="line">      b[i]=t;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这一类代码就不符合我们的预期，可以改成这样</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">minmax2</span><span class="params">(<span class="keyword">long</span> a[],<span class="keyword">long</span> b[],<span class="keyword">long</span> n)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">long</span> i;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;n;++i)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">long</span> min=a[i]&lt;b[i]?a[i]:b[i];</span><br><span class="line">    <span class="keyword">long</span> max=a[i]&lt;b[i]?b[i]:a[i];</span><br><span class="line">    a[i]=min;</span><br><span class="line">    b[i]=max;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>事实上这样写是否符合我们的预期，还需要编译之后反编译看看汇编代码才能确定。之前的写法是否<br>符合预期，也要看GCC的优化是否发展到了足够的地步。总的来说，因为现代处理器的乱序执行的特性，<br>我们更期望使用条件转移或者其他办法来降低分支预测惩罚。</p>
+<h2 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h2><p>事实上这一章节的内容可以分为这两方面，一是要尽量减少不必要的开销(例如函数掉用，循环开销等)，<br>二是要充分利用处理器的处理单元，尽量多的利用处理器的并行计算能力。基于这两点以及我们先前所知的<br>现代处理器具有”乱序执行”的能力的特点，去写出更容易被优化、更容易利用潜在的“并行”能力的代码。</p>
+
+      
+    </div>
+
+    
+
+    
+      
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yu.Leng</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://codefish.info/2018/09/08/CS:APP第五章-总结-2/" title="CS:APP 第五章-总结">https://codefish.info/2018/09/08/CS:APP第五章-总结-2/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+            <a href="/tags/Codeforces/" rel="tag"># Codeforces</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/05/CS:APP-AttackLab/" rel="next" title="CS:APP AttackLab">
+                <i class="fa fa-chevron-left"></i> CS:APP AttackLab
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/13/CS:APP-CacheLab/" rel="prev" title="CS:APP CacheLab">
+                CS:APP CacheLab <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+  <p class="site-author-name" itemprop="name">Leng Yu</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+
+
+  <nav class="site-state motion-element">
+    
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+
+
+
+
+
+  <div class="links-of-author motion-element">
+    
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="https://github.com/moooyo" title="GitHub &rarr; https://github.com/moooyo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="mailto:lengyuchn@qq.com" title="E-Mail &rarr; mailto:lengyuchn@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+    
+  </div>
+
+
+
+  <div class="cc-license motion-element" itemprop="license">
+  
+  
+    
+  
+  
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+
+
+          
+          
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#优化程序性能"><span class="nav-number">1.</span> <span class="nav-text">优化程序性能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GCC的一些优化策略"><span class="nav-number">1.1.</span> <span class="nav-text">GCC的一些优化策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#限制"><span class="nav-number">1.1.1.</span> <span class="nav-text">限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#改进措施"><span class="nav-number">1.1.2.</span> <span class="nav-text">改进措施</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#程序编写时进行调整以期提高性能"><span class="nav-number">1.2.</span> <span class="nav-text">程序编写时进行调整以期提高性能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#代码移动"><span class="nav-number">1.2.1.</span> <span class="nav-text">代码移动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#减少过程掉用"><span class="nav-number">1.2.2.</span> <span class="nav-text">减少过程掉用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#消除不必要的内存引用"><span class="nav-number">1.2.3.</span> <span class="nav-text">消除不必要的内存引用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#利用现代处理器的特性进行优化"><span class="nav-number">1.3.</span> <span class="nav-text">利用现代处理器的特性进行优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#循环展开"><span class="nav-number">1.3.1.</span> <span class="nav-text">循环展开</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#k-1的循环展开"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">k*1的循环展开</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#k-k路循环展开"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">k*k路循环展开</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重新结合变换"><span class="nav-number">1.3.1.3.</span> <span class="nav-text">重新结合变换</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#总结"><span class="nav-number">1.3.1.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一些限制因素"><span class="nav-number">1.3.2.</span> <span class="nav-text">一些限制因素</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#寄存器溢出"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">寄存器溢出</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分支预测和预测错误处罚"><span class="nav-number">1.3.2.2.</span> <span class="nav-text">分支预测和预测错误处罚</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#不要过分关心可预测的分支"><span class="nav-number">1.3.2.2.1.</span> <span class="nav-text">不要过分关心可预测的分支</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#书写适合用条件传送实现的代码"><span class="nav-number">1.3.2.2.2.</span> <span class="nav-text">书写适合用条件传送实现的代码</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结-1"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">leng yu</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+</body>
+</html>

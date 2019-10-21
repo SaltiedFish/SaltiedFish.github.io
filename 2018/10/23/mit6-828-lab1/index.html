@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: ''
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="Booting a PC因为觉得这东西比较难，主要是比较繁琐，还是参考CSAPP的样子写一下博客记录一下，加深记忆 环境配置gcc  gcc 4.8即可，不要用各大发行版自带的gcc, 选学优化会导致评分不准。 qemu  严格按照他给的材料来安装他们自己倒腾出来的那个qemu，嫌麻烦也可以直接从包管理安装，但是据说会有点问题 推荐环境  如果嫌麻烦，可以考虑用manjaro这一类发行版一路yao">
+<meta name="keywords" content="operating system,mit6.828">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mit6.828-lab1">
+<meta property="og:url" content="https://codefish.info/2018/10/23/mit6-828-lab1/index.html">
+<meta property="og:site_name" content="Yu">
+<meta property="og:description" content="Booting a PC因为觉得这东西比较难，主要是比较繁琐，还是参考CSAPP的样子写一下博客记录一下，加深记忆 环境配置gcc  gcc 4.8即可，不要用各大发行版自带的gcc, 选学优化会导致评分不准。 qemu  严格按照他给的材料来安装他们自己倒腾出来的那个qemu，嫌麻烦也可以直接从包管理安装，但是据说会有点问题 推荐环境  如果嫌麻烦，可以考虑用manjaro这一类发行版一路yao">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-28T15:41:39.016Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mit6.828-lab1">
+<meta name="twitter:description" content="Booting a PC因为觉得这东西比较难，主要是比较繁琐，还是参考CSAPP的样子写一下博客记录一下，加深记忆 环境配置gcc  gcc 4.8即可，不要用各大发行版自带的gcc, 选学优化会导致评分不准。 qemu  严格按照他给的材料来安装他们自己倒腾出来的那个qemu，嫌麻烦也可以直接从包管理安装，但是据说会有点问题 推荐环境  如果嫌麻烦，可以考虑用manjaro这一类发行版一路yao">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Yu" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://codefish.info/2018/10/23/mit6-828-lab1/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  
+  <title>mit6.828-lab1 | Yu</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yu</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+</div>
+    </header>
+
+    
+  
+  
+
+  
+
+  <a href="https://github.com/moooyo" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewbox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a>
+
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://codefish.info/2018/10/23/mit6-828-lab1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Leng Yu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yu">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">mit6.828-lab1
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-10-23 23:58:23" itemprop="dateCreated datePublished" datetime="2018-10-23T23:58:23+08:00">2018-10-23</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-28 23:41:39" itemprop="dateModified" datetime="2019-07-28T23:41:39+08:00">2019-07-28</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/mit6-828-Lab/" itemprop="url" rel="index"><span itemprop="name">mit6.828 Lab</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Booting-a-PC"><a href="#Booting-a-PC" class="headerlink" title="Booting a PC"></a>Booting a PC</h1><p>因为觉得这东西比较难，主要是比较繁琐，还是参考CSAPP的样子写一下博客记录一下，加深记忆</p>
+<h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><h3 id="gcc"><a href="#gcc" class="headerlink" title="gcc"></a>gcc</h3><p>  gcc 4.8即可，不要用各大发行版自带的gcc, 选学优化会导致评分不准。</p>
+<h3 id="qemu"><a href="#qemu" class="headerlink" title="qemu"></a>qemu</h3><p>  严格按照他给的材料来安装他们自己倒腾出来的那个qemu，嫌麻烦也可以直接从包管理安装，但是据说会有点问题</p>
+<h3 id="推荐环境"><a href="#推荐环境" class="headerlink" title="推荐环境"></a>推荐环境</h3><p>  如果嫌麻烦，可以考虑用manjaro这一类发行版一路yaourt 安装e即可，也可以用ubuntu按照他给的材料慢慢折腾。但是在我本机上没有成功编译他给出的编译链，我选择安装gcc 4.8来替代。</p>
+<h2 id="一些比较重要的点"><a href="#一些比较重要的点" class="headerlink" title="一些比较重要的点"></a>一些比较重要的点</h2><h3 id="PC的物理地址"><a href="#PC的物理地址" class="headerlink" title="PC的物理地址"></a>PC的物理地址</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">+------------------+  &lt;- 0xFFFFFFFF (4GB)</span><br><span class="line">|      32-bit      |</span><br><span class="line">|  memory mapped   |</span><br><span class="line">|     devices      |</span><br><span class="line">|                  |</span><br><span class="line">/\/\/\/\/\/\/\/\/\/\</span><br><span class="line">/\/\/\/\/\/\/\/\/\/\</span><br><span class="line">|                  |</span><br><span class="line">|      Unused      |</span><br><span class="line">|                  |</span><br><span class="line">+------------------+  &lt;- depends on amount of RAM</span><br><span class="line">|                  |</span><br><span class="line">|                  |</span><br><span class="line">| Extended Memory  |</span><br><span class="line">|                  |</span><br><span class="line">|                  |</span><br><span class="line">+------------------+  &lt;- 0x00100000 (1MB)</span><br><span class="line">|     BIOS ROM     |</span><br><span class="line">+------------------+  &lt;- 0x000F0000 (960KB)</span><br><span class="line">|  16-bit devices, |</span><br><span class="line">|  expansion ROMs  |</span><br><span class="line">+------------------+  &lt;- 0x000C0000 (768KB)</span><br><span class="line">|   VGA Display    |</span><br><span class="line">+------------------+  &lt;- 0x000A0000 (640KB)</span><br><span class="line">|                  |</span><br><span class="line">|    Low Memory    |</span><br><span class="line">|                  |</span><br><span class="line">+------------------+  &lt;- 0x00000000</span><br></pre></td></tr></table></figure>
+
+<h2 id="PC-Bootstrap"><a href="#PC-Bootstrap" class="headerlink" title="PC Bootstrap"></a>PC Bootstrap</h2><h3 id="Exercise-1"><a href="#Exercise-1" class="headerlink" title="Exercise 1"></a>Exercise 1</h3><blockquote>
+<p>Exercise 1. Familiarize yourself with the assembly language materials available on <a href="https://pdos.csail.mit.edu/6.828/2018/reference.html" target="_blank" rel="noopener">the 6.828 reference page</a>. You don’t have to read them now, but you’ll almost certainly want to refer to some of this material when reading and writing x86 assembly.</p>
+<p>We do recommend reading the section “The Syntax” in <a href="http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html" target="_blank" rel="noopener">Brennan’s Guide to Inline Assembly</a>. It gives a good (and quite brief) description of the AT&amp;T assembly syntax we’ll be using with the GNU assembler in JOS.</p>
+</blockquote>
+<p>因为我已经从CSAPP 中学过部分x86汇编，所以大致瞟了一眼他给的材料，然后跳过</p>
+<h3 id="Exercise-2"><a href="#Exercise-2" class="headerlink" title="Exercise 2"></a>Exercise 2</h3><blockquote>
+<p>Exercise 2. Use GDB’s si (Step Instruction) command to trace into the ROM BIOS for a few more instructions, and try to guess what it might be doing. You might want to look at <a href="http://web.archive.org/web/20040404164813/members.iweb.net.au/~pstorr/pcbook/book2/book2.htm" target="_blank" rel="noopener">Phil Storrs I/O Ports Description</a>, as well as other materials on the <a href="https://pdos.csail.mit.edu/6.828/2018/reference.html" target="_blank" rel="noopener">6.828 reference materials page</a>. No need to figure out all the details - just the general idea of what the BIOS is doing first.</p>
+</blockquote>
+<p>跟踪后发现BIOS首先设置了%SP，然后清楚了中断，然后是几个跳转。</p>
+<h3 id="Exercise-3"><a href="#Exercise-3" class="headerlink" title="Exercise 3"></a>Exercise 3</h3><blockquote>
+<p>Exercise 3. Take a look at the <a href="https://pdos.csail.mit.edu/6.828/2018/labguide.html" target="_blank" rel="noopener">lab tools guide</a>, especially the section on GDB commands. Even if you’re familiar with GDB, this includes some esoteric GDB commands that are useful for OS work.</p>
+<p>Set a breakpoint at address 0x7c00, which is where the boot sector will be loaded. Continue execution until that breakpoint. Trace through the code in <code>boot/boot.S</code>, using the source code and the disassembly file<code>obj/boot/boot.asm</code> to keep track of where you are. Also use the <code>x/i</code> command in GDB to disassemble sequences of instructions in the boot loader, and compare the original boot loader source code with both the disassembly in <code>obj/boot/boot.asm</code> and GDB.</p>
+<p>Trace into <code>bootmain()</code> in <code>boot/main.c</code>, and then into <code>readsect()</code>. Identify the exact assembly instructions that correspond to each of the statements in <code>readsect()</code>. Trace through the rest of <code>readsect()</code> and back out into <code>bootmain()</code>, and identify the begin and end of the <code>for</code> loop that reads the remaining sectors of the kernel from the disk. Find out what code will run when the loop is finished, set a breakpoint there, and continue to that breakpoint. Then step through the remainder of the boot loader.</p>
+</blockquote>
+<p>readsect的c语言代码和汇编代码的对应关系:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span></span><br><span class="line">readsect(<span class="keyword">void</span> *dst, <span class="keyword">uint32_t</span> offset)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// wait for disk to be ready</span></span><br><span class="line">	waitdisk();</span><br><span class="line"></span><br><span class="line">	outb(<span class="number">0x1F2</span>, <span class="number">1</span>);		<span class="comment">// count = 1</span></span><br><span class="line">	outb(<span class="number">0x1F3</span>, offset);</span><br><span class="line">	outb(<span class="number">0x1F4</span>, offset &gt;&gt; <span class="number">8</span>);</span><br><span class="line">	outb(<span class="number">0x1F5</span>, offset &gt;&gt; <span class="number">16</span>);</span><br><span class="line">	outb(<span class="number">0x1F6</span>, (offset &gt;&gt; <span class="number">24</span>) | <span class="number">0xE0</span>);</span><br><span class="line">	outb(<span class="number">0x1F7</span>, <span class="number">0x20</span>);	<span class="comment">// cmd 0x20 - read sectors</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// wait for disk to be ready</span></span><br><span class="line">	waitdisk();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// read a sector</span></span><br><span class="line">	insl(<span class="number">0x1F0</span>, dst, SECTSIZE/<span class="number">4</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">00007c7c &lt;readsect&gt;:</span><br><span class="line"></span><br><span class="line">void</span><br><span class="line">readsect(void *dst, uint32_t offset)</span><br><span class="line">&#123;</span><br><span class="line">    7c7c:	55                   	push   %ebp</span><br><span class="line">    7c7d:	89 e5                	mov    %esp,%ebp</span><br><span class="line">    7c7f:	57                   	push   %edi</span><br><span class="line">    7c80:	53                   	push   %ebx</span><br><span class="line">    7c81:	8b 5d 0c             	mov    0xc(%ebp),%ebx</span><br><span class="line">	// wait for disk to be ready</span><br><span class="line">	waitdisk();</span><br><span class="line">    7c84:	e8 e1 ff ff ff       	call   7c6a &lt;waitdisk&gt;</span><br><span class="line">&#125;</span><br><span class="line">static inline void</span><br><span class="line">outb(int port, uint8_t data)</span><br><span class="line">&#123;</span><br><span class="line">	asm volatile(&quot;outb %0,%w1&quot; : : &quot;a&quot; (data), &quot;d&quot; (port));</span><br><span class="line">    7c89:	ba f2 01 00 00       	mov    $0x1f2,%edx</span><br><span class="line">    7c8e:	b0 01                	mov    $0x1,%al</span><br><span class="line">    7c90:	ee                   	out    %al,(%dx)</span><br><span class="line">    7c91:	0f b6 c3             	movzbl %bl,%eax</span><br><span class="line">    7c94:	b2 f3                	mov    $0xf3,%dl</span><br><span class="line">    7c96:	ee                   	out    %al,(%dx)</span><br><span class="line">    7c97:	0f b6 c7             	movzbl %bh,%eax</span><br><span class="line">    7c9a:	b2 f4                	mov    $0xf4,%dl</span><br><span class="line">    7c9c:	ee                   	out    %al,(%dx)</span><br><span class="line"></span><br><span class="line">	outb(0x1F2, 1);		// count = 1</span><br><span class="line">	outb(0x1F3, offset);</span><br><span class="line">	outb(0x1F4, offset &gt;&gt; 8);</span><br><span class="line">	outb(0x1F5, offset &gt;&gt; 16);</span><br><span class="line">    7c9d:	89 d8                	mov    %ebx,%eax</span><br><span class="line">    7c9f:	b2 f5                	mov    $0xf5,%dl</span><br><span class="line">    7ca1:	c1 e8 10             	shr    $0x10,%eax</span><br><span class="line">    7ca4:	0f b6 c0             	movzbl %al,%eax</span><br><span class="line">    7ca7:	ee                   	out    %al,(%dx)</span><br><span class="line">	outb(0x1F6, (offset &gt;&gt; 24) | 0xE0);</span><br><span class="line">    7ca8:	c1 eb 18             	shr    $0x18,%ebx</span><br><span class="line">    7cab:	b2 f6                	mov    $0xf6,%dl</span><br><span class="line">    7cad:	88 d8                	mov    %bl,%al</span><br><span class="line">    7caf:	83 c8 e0             	or     $0xffffffe0,%eax</span><br><span class="line">    7cb2:	ee                   	out    %al,(%dx)</span><br><span class="line">    7cb3:	b0 20                	mov    $0x20,%al</span><br><span class="line">    7cb5:	b2 f7                	mov    $0xf7,%dl</span><br><span class="line">    7cb7:	ee                   	out    %al,(%dx)</span><br><span class="line">	outb(0x1F7, 0x20);	// cmd 0x20 - read sectors</span><br><span class="line"></span><br><span class="line">	// wait for disk to be ready</span><br><span class="line">	waitdisk();</span><br><span class="line">    7cb8:	e8 ad ff ff ff       	call   7c6a &lt;waitdisk&gt;</span><br><span class="line">	asm volatile(&quot;cld\n\trepne\n\tinsl&quot;</span><br><span class="line">    7cbd:	8b 7d 08             	mov    0x8(%ebp),%edi</span><br><span class="line">    7cc0:	b9 80 00 00 00       	mov    $0x80,%ecx</span><br><span class="line">    7cc5:	ba f0 01 00 00       	mov    $0x1f0,%edx</span><br><span class="line">    7cca:	fc                   	cld    </span><br><span class="line">    7ccb:	f2 6d                	repnz insl (%dx),%es:(%edi)</span><br><span class="line"></span><br><span class="line">	// read a sector</span><br><span class="line">	insl(0x1F0, dst, SECTSIZE/4);</span><br><span class="line">&#125;</span><br><span class="line">    7ccd:	5b                   	pop    %ebx</span><br><span class="line">    7cce:	5f                   	pop    %edi</span><br><span class="line">    7ccf:	5d                   	pop    %ebp</span><br><span class="line">    7cd0:	c3                   	ret</span><br></pre></td></tr></table></figure>
+
+<p>注意看汇编的outb部分，实际上通过一系列的硬编码把%ebx偏移位置的东西out到%dx里面。</p>
+<p>这里主要是%ebx到%ax的构造。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7c91:	0f b6 c3             	movzbl %bl,%eax</span><br></pre></td></tr></table></figure>
+
+<p>这一行是传递%bl的最低一个字节并且把其他字节填充为0也就是offset</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7c97:	0f b6 c7             	movzbl %bh,%eax</span><br></pre></td></tr></table></figure>
+
+<p>这个就是传递%bh(bx的高8位)的最低一个字节并且把其他字节填充为0也就是offset&gt;&gt;8</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">7c9d:	89 d8                	mov    %ebx,%eax</span><br><span class="line">7c9f:	b2 f5                	mov    $0xf5,%dl</span><br><span class="line">7ca1:	c1 e8 10             	shr    $0x10,%eax</span><br></pre></td></tr></table></figure>
+
+<p>这就是把%ebx送到%eax并且右移动16位，也就是offset&gt;&gt;16</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">7ca8:	c1 eb 18             	shr    $0x18,%ebx</span><br><span class="line">7cab:	b2 f6                	mov    $0xf6,%dl</span><br><span class="line">7cad:	88 d8                	mov    %bl,%al</span><br><span class="line">7caf:	83 c8 e0             	or     $0xffffffe0,%eax</span><br><span class="line">7cb2:	ee                   	out    %al,(%dx)</span><br></pre></td></tr></table></figure>
+
+<p>这里是把%eax右移动24位送低8位到%eax,然后取|0xE0,然后out,也就是offset&gt;&gt;24| 0xE0</p>
+<p>然后是识别循环部分，这一部分直接上汇编一行一行讲解(直接用地址代替行号)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">   7d34:	8d 98 00 00 01 00    	lea    0x10000(%eax),%ebx</span><br><span class="line">eph = ph + ELFHDR-&gt;e_phnum;</span><br><span class="line">   7d3a:	0f b7 05 2c 00 01 00 	movzwl 0x1002c,%eax</span><br><span class="line">   7d41:	c1 e0 05             	shl    $0x5,%eax</span><br><span class="line">   7d44:	8d 34 03             	lea    (%ebx,%eax,1),%esi</span><br><span class="line">for (; ph &lt; eph; ph++)</span><br><span class="line">   7d47:	39 f3                	cmp    %esi,%ebx</span><br><span class="line">   7d49:	73 16                	jae    7d61 &lt;bootmain+0x57&gt;</span><br><span class="line">	readseg(ph-&gt;p_pa, ph-&gt;p_memsz, ph-&gt;p_offset);</span><br><span class="line">   7d4b:	ff 73 04             	pushl  0x4(%ebx)</span><br><span class="line">for (; ph &lt; eph; ph++)</span><br><span class="line">   7d4e:	83 c3 20             	add    $0x20,%ebx</span><br><span class="line">	readseg(ph-&gt;p_pa, ph-&gt;p_memsz, ph-&gt;p_offset);</span><br><span class="line">   7d51:	ff 73 f4             	pushl  -0xc(%ebx)</span><br><span class="line">   7d54:	ff 73 ec             	pushl  -0x14(%ebx)</span><br><span class="line">   7d57:	e8 75 ff ff ff       	call   7cd1 &lt;readseg&gt;</span><br><span class="line">for (; ph &lt; eph; ph++)</span><br><span class="line">   7d5c:	83 c4 0c             	add    $0xc,%esp</span><br><span class="line">   7d5f:	eb e6                	jmp    7d47 &lt;bootmain+0x3d&gt;</span><br></pre></td></tr></table></figure>
+
+<p>7d34部分算出ph并且存在%ebx中，然后一波神奇的操作之后在7d44处算出了eph并且存在了%esi中，</p>
+<p>接着判断$eph\geq ph$是否成立,如果不成立就正常的通过各种操作存参数，传参数，然后调用readseg,注意7d4e，这一行让%ebx增加0x20,也就是执行了ph++。如果成立就跳到7d61,也就是执行</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">((<span class="keyword">void</span> (*)(<span class="keyword">void</span>)) (ELFHDR-&gt;e_entry))();</span><br></pre></td></tr></table></figure>
+
+<p>这一行跳转到了0x10000c位置，从这里开始，就是kernel部分了。</p>
+<blockquote>
+<p>Be able to answer the following questions:</p>
+<ul>
+<li>At what point does the processor start executing 32-bit code? What exactly causes the switch from 16- to 32-bit mode?</li>
+<li>What is the <em>last</em> instruction of the boot loader executed, and what is the <em>first</em> instruction of the kernel it just loaded? </li>
+<li>Where is the first instruction of the kernel?</li>
+<li>How does the boot loader decide how many sectors it must read in order to fetch the entire kernel from disk? Where does it find this information?</li>
+</ul>
+</blockquote>
+<p>这四个问题其实代码里面都有答案</p>
+<ol>
+<li>这一部分在附录A和boot.S里面有提及</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># Switch from real to protected mode, using a bootstrap GDT</span><br><span class="line"># and segment translation that makes virtual addresses </span><br><span class="line"># identical to their physical addresses, so that the </span><br><span class="line"># effective memory map does not change during the switch.</span><br><span class="line">lgdt    gdtdesc</span><br><span class="line">movl    %cr0, %eax</span><br><span class="line">orl     $CR0_PE_ON, %eax</span><br><span class="line">movl    %eax, %cr0</span><br><span class="line"></span><br><span class="line"># Jump to next instruction, but in 32-bit code segment.</span><br><span class="line"># Switches processor into 32-bit mode.</span><br><span class="line">ljmp    $PROT_MODE_CSEG, $protcseg</span><br></pre></td></tr></table></figure>
+
+<p>bios启动以后进入引导程序，一开始是16位实模式，到这里用lgdt加载了段描述符表gdtdesc,然后把CR0_PE设置成CR0_PE_ON来设置成等待开启保护模式的状态，这个状态的变化依赖于某个段寄存器的改变，这里利用ljmp来改变%cs寄存器，这时处理器读取gdt然后改变内部设置。因为gdtdesc中指定了是32位模式，所以从ljmp跳转过去以后就是32位模式了。</p>
+<ol start="2">
+<li>最后一条指令显然是7d5f处的jump</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7d5f:	eb e6                	jmp    7d47 &lt;bootmain+0x3d&gt;</span><br></pre></td></tr></table></figure>
+
+<p>第一条kernel指令则是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f010000c:	66 c7 05 72 04 00 00 	movw   $0x1234,0x472</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在0x100000c处，不是0xf010000c处</li>
+<li>应该是从硬盘的第一个页中读取了elf的头，这个头里面记录了后面应该读取多少扇区</li>
+</ol>
+<h2 id="Loading-the-Kernel"><a href="#Loading-the-Kernel" class="headerlink" title="Loading the Kernel"></a>Loading the Kernel</h2><h3 id="Exercise-4"><a href="#Exercise-4" class="headerlink" title="Exercise 4"></a>Exercise 4</h3><blockquote>
+<p>Exercise 4. Read about programming with pointers in C. The best reference for the C language is <em>The C Programming Language</em> by Brian Kernighan and Dennis Ritchie (known as ‘K&amp;R’). We recommend that students purchase this book (here is an <a href="http://www.amazon.com/C-Programming-Language-2nd/dp/0131103628/sr=8-1/qid=1157812738/ref=pd_bbs_1/104-1502762-1803102?ie=UTF8&s=books" target="_blank" rel="noopener">Amazon Link</a>) or find one of<a href="http://library.mit.edu/F/AI9Y4SJ2L5ELEE2TAQUAAR44XV5RTTQHE47P9MKP5GQDLR9A8X-10422?func=item-global&doc_library=MIT01&doc_number=000355242&year=&volume=&sub_library=" target="_blank" rel="noopener">MIT’s 7 copies</a>.</p>
+<p>Read 5.1 (Pointers and Addresses) through 5.5 (Character Pointers and Functions) in K&amp;R. Then download the code for <a href="https://pdos.csail.mit.edu/6.828/2018/labs/lab1/pointers.c" target="_blank" rel="noopener">pointers.c</a>, run it, and make sure you understand where all of the printed values come from. In particular, make sure you understand where the pointer addresses in printed lines 1 and 6 come from, how all the values in printed lines 2 through 4 get there, and why the values printed in line 5 are seemingly corrupted.</p>
+<p>There are other references on pointers in C (e.g., <a href="https://pdos.csail.mit.edu/6.828/2018/readings/pointers.pdf" target="_blank" rel="noopener">A tutorial by Ted Jensen</a> that cites K&amp;R heavily), though not as strongly recommended.</p>
+<p>Warning:Unless you are already thoroughly versed in C, do not skip or even skim this reading exercise. If you do not really understand pointers in C, you will suffer untold pain and misery in subsequent labs, and then eventually come to understand them the hard way. Trust us; you don’t want to find out what “the hard way” is.</p>
+</blockquote>
+<p>pass</p>
+<h3 id="Exercise-5"><a href="#Exercise-5" class="headerlink" title="Exercise 5"></a>Exercise 5</h3><blockquote>
+<p>Exercise 5. Trace through the first few instructions of the boot loader again and identify the first instruction that would “break” or otherwise do the wrong thing if you were to get the boot loader’s link address wrong. Then change the link address in <code>boot/Makefrag</code> to something wrong, run make clean, recompile the lab with make, and trace into the boot loader again to see what happens. Don’t forget to change the link address back and make clean again afterward!</p>
+</blockquote>
+<p>实测会不断地重启然后屏幕里面不断地刷出提示符</p>
+<h3 id="Exercise-6"><a href="#Exercise-6" class="headerlink" title="Exercise 6"></a>Exercise 6</h3><blockquote>
+<p>Exercise 6. We can examine memory using GDB’s x command. The <a href="https://sourceware.org/gdb/current/onlinedocs/gdb/Memory.html" target="_blank" rel="noopener">GDB manual</a> has full details, but for now, it is enough to know that the command x/<em>N</em>x <em>ADDR</em> prints <em>N</em> words of memory at <em>ADDR</em>. (Note that both ‘<code>x</code>‘s in the command are lowercase.) <em>Warning</em>: The size of a word is not a universal standard. In GNU assembly, a word is two bytes (the ‘w’ in xorw, which stands for word, means 2 bytes).</p>
+<p>Reset the machine (exit QEMU/GDB and start them again). Examine the 8 words of memory at 0x00100000 at the point the BIOS enters the boot loader, and then again at the point the boot loader enters the kernel. Why are they different? What is there at the second breakpoint? (You do not really need to use QEMU to answer this question. Just think.)</p>
+</blockquote>
+<p>首先打个断点在0x7c00然后随便走两步之后看</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) x/8x 0x100000</span><br><span class="line">0x100000:       0x00000000      0x00000000      0x00000000      0x00000000</span><br><span class="line">0x100010:       0x00000000      0x00000000      0x00000000      0x00000000</span><br></pre></td></tr></table></figure>
+
+<p>然后进入内核(打个断点在0x7d61，也就是call entry的地方，然后走一步就到了kernel)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(gdb) x/8x 0x100000</span><br><span class="line">0x100000:       0x1badb002      0x00000000      0xe4524ffe      0x7205c766</span><br><span class="line">0x100010:       0x34000004      0x0000b812      0x220f0011      0xc0200fd8</span><br></pre></td></tr></table></figure>
+
+<p>实际上都没必要看，一开始没有加载的时候肯定啥都没有，进入内核了肯定都加载了，就有数据了嘛。这里应该是内核部分的代码，因为当前执行的指令也在这个区域附近。</p>
+<h3 id="Exercise-7"><a href="#Exercise-7" class="headerlink" title="Exercise 7"></a>Exercise 7</h3><blockquote>
+<p>Exercise 7. Use QEMU and GDB to trace into the JOS kernel and stop at the <code>movl %eax, %cr0</code>. Examine memory at 0x00100000 and at 0xf0100000. Now, single step over that instruction using the stepi GDB command. Again, examine memory at 0x00100000 and at 0xf0100000. Make sure you understand what just happened.</p>
+<p>What is the first instruction <em>after</em> the new mapping is established that would fail to work properly if the mapping weren’t in place? Comment out the <code>movl %eax, %cr0</code> in <code>kern/entry.S</code>, trace into it, and see if you were right.</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">=&gt; 0x100025:    mov    %eax,%cr0</span><br><span class="line">0x00100025 in ?? ()</span><br><span class="line">(gdb) x/8i 0x100000</span><br><span class="line">   0x100000:    add    0x1bad(%eax),%dh</span><br><span class="line">   0x100006:    add    %al,(%eax)</span><br><span class="line">   0x100008:    decb   0x52(%edi)</span><br><span class="line">   0x10000b:    in     $0x66,%al</span><br><span class="line">   0x10000d:    movl   $0xb81234,0x472</span><br><span class="line">   0x100017:    add    %dl,(%ecx)</span><br><span class="line">   0x100019:    add    %cl,(%edi)</span><br><span class="line">   0x10001b:    and    %al,%bl</span><br><span class="line">(gdb) si</span><br><span class="line">=&gt; 0x100028:    mov    $0xf010002f,%eax</span><br><span class="line">0x00100028 in ?? ()</span><br><span class="line">(gdb) x/8i 0xf0100000</span><br><span class="line">   0xf0100000 &lt;_start+4026531828&gt;:      add    0x1bad(%eax),%dh</span><br><span class="line">   0xf0100006 &lt;_start+4026531834&gt;:      add    %al,(%eax)</span><br><span class="line">   0xf0100008 &lt;_start+4026531836&gt;:      decb   0x52(%edi)</span><br><span class="line">   0xf010000b &lt;_start+4026531839&gt;:      in     $0x66,%al</span><br><span class="line">   0xf010000d &lt;entry+1&gt;:        movl   $0xb81234,0x472</span><br><span class="line">   0xf0100017 &lt;entry+11&gt;:       add    %dl,(%ecx)</span><br><span class="line">   0xf0100019 &lt;entry+13&gt;:       add    %cl,(%edi)</span><br><span class="line">   0xf010001b &lt;entry+15&gt;:       and    %al,%bl</span><br><span class="line">(gdb) x/8i 0x100000</span><br><span class="line">   0x100000:    add    0x1bad(%eax),%dh</span><br><span class="line">   0x100006:    add    %al,(%eax)</span><br><span class="line">   0x100008:    decb   0x52(%edi)</span><br><span class="line">   0x10000b:    in     $0x66,%al</span><br><span class="line">   0x10000d:    movl   $0xb81234,0x472</span><br><span class="line">   0x100017:    add    %dl,(%ecx)</span><br><span class="line">   0x100019:    add    %cl,(%edi)</span><br><span class="line">   0x10001b:    and    %al,%bl</span><br></pre></td></tr></table></figure>
+
+<p>这个很明显，执行了movl %eax, %cr0之后有了从0x100000到0xf0100000的某种映射。</p>
+<p>注释掉以后在第一次jump之后运行便出错了，猜测是因为没有建立这种映射导致执行的位置并没有代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">=&gt; 0x10002a:    jmp    *%eax</span><br><span class="line">0x0010002a in ?? ()</span><br><span class="line">(gdb) si</span><br><span class="line">=&gt; 0xf010002c &lt;relocated&gt;:      add    %al,(%eax)</span><br><span class="line">relocated () at kern/entry.S:74</span><br><span class="line">74              movl    $0x0,%ebp                       # nuke frame pointer</span><br><span class="line">(gdb) si</span><br><span class="line">Remote connection closed</span><br></pre></td></tr></table></figure>
+
+<h3 id="Exercise-8"><a href="#Exercise-8" class="headerlink" title="Exercise 8"></a>Exercise 8</h3><blockquote>
+<p>Exercise 8. We have omitted a small fragment of code - the code necessary to print octal numbers using patterns of the form “%o”. Find and fill in this code fragment.</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="string">'o'</span>:</span><br><span class="line">	<span class="comment">// Replace this with your code.</span></span><br><span class="line">	num=getuint(&amp;ap,lflag);</span><br><span class="line">	base=<span class="number">8</span>;</span><br><span class="line">	<span class="keyword">goto</span> number;</span><br></pre></td></tr></table></figure>
+
+<p>我直接照着%u的写，貌似运行还比较正常</p>
+<p>对于给出的6个问题其实很好回答。</p>
+<ol>
+<li>console.c导出了cputchar,printf.c利用cputchar和vcprintfmt实现各种功能。</li>
+<li>CRT_SIZE表示console能显示的最大长度，如果当前的内容超过了这个长度，那么就要把所有内容向上移动一行，然后把最后一行的剩余位置变成空，也就是’ ‘.</li>
+<li>略</li>
+<li>输出”He110 World”,第一个是十六进制转10进制，第二个因为intel是小端法，低位在低地址，所以得从后往前看，比如0x72对应114就是ascii中的’r’。</li>
+<li>感觉上第二个值应该是3对应位置的后一个位置吧,反正输出肯定是不确定的。</li>
+<li>修改va_start和va_end</li>
+</ol>
+<h3 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h3><blockquote>
+<p>Enhance the console to allow text to be printed in different colors. The traditional way to do this is to make it interpret <a href="http://rrbrandt.dee.ufcg.edu.br/en/docs/ansi/" target="_blank" rel="noopener">ANSI escape sequences</a> embedded in the text strings printed to the console, but you may use any mechanism you like. There is plenty of information on <a href="https://pdos.csail.mit.edu/6.828/2018/reference.html" target="_blank" rel="noopener">the 6.828 reference page</a> and elsewhere on the web on programming the VGA display hardware. If you’re feeling really adventurous, you could try switching the VGA hardware into a graphics mode and making the console draw text onto the graphical frame buffer.</p>
+</blockquote>
+<p>挖坑，以后再做</p>
+<h2 id="The-Stack"><a href="#The-Stack" class="headerlink" title="The Stack"></a>The Stack</h2><blockquote>
+<p>Determine where the kernel initializes its stack, and exactly where in memory its stack is located. How does the kernel reserve space for its stack? And at which “end” of this reserved area is the stack pointer initialized to point to?</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">movl    $(bootstacktop),%esp</span><br></pre></td></tr></table></figure>
+
+<p>这里把bootstacktop设置到了esp初始化了栈位置,后一个问题我没太看懂问的啥。</p>
+<h3 id="Exercise-10"><a href="#Exercise-10" class="headerlink" title="Exercise 10"></a>Exercise 10</h3><blockquote>
+<p>To become familiar with the C calling conventions on the x86, find the address of the <code>test_backtrace</code> function in <code>obj/kern/kernel.asm</code>, set a breakpoint there, and examine what happens each time it gets called after the kernel starts. How many 32-bit words does each recursive nesting level of <code>test_backtrace</code> push on the stack, and what are those words?</p>
+<p>Note that, for this exercise to work properly, you should be using the patched version of QEMU available on the <a href="https://pdos.csail.mit.edu/6.828/2018/tools.html" target="_blank" rel="noopener">tools</a> page or on Athena. Otherwise, you’ll have to manually translate all breakpoint and memory addresses to linear addresses.</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">void</span><br><span class="line">test_backtrace(int x)</span><br><span class="line">&#123;</span><br><span class="line">f0100040:	55                   	push   %ebp</span><br><span class="line">f0100041:	89 e5                	mov    %esp,%ebp</span><br><span class="line">f0100043:	53                   	push   %ebx</span><br><span class="line">f0100044:	83 ec 14             	sub    $0x14,%esp</span><br><span class="line">f0100047:	8b 5d 08             	mov    0x8(%ebp),%ebx</span><br><span class="line">	cprintf(&quot;entering test_backtrace %d\n&quot;, x);</span><br><span class="line">f010004a:	89 5c 24 04          	mov    %ebx,0x4(%esp)</span><br><span class="line">f010004e:	c7 04 24 00 1a 10 f0 	movl   $0xf0101a00,(%esp)</span><br><span class="line">f0100055:	e8 75 09 00 00       	call   f01009cf &lt;cprintf&gt;</span><br><span class="line">	if (x &gt; 0)</span><br><span class="line">f010005a:	85 db                	test   %ebx,%ebx</span><br><span class="line">f010005c:	7e 0d                	jle    f010006b &lt;test_backtrace+0x2b&gt;</span><br><span class="line">		test_backtrace(x-1);</span><br><span class="line">f010005e:	8d 43 ff             	lea    -0x1(%ebx),%eax</span><br><span class="line">f0100061:	89 04 24             	mov    %eax,(%esp)</span><br><span class="line">f0100064:	e8 d7 ff ff ff       	call   f0100040 &lt;test_backtrace&gt;</span><br><span class="line">f0100069:	eb 1c                	jmp    f0100087 &lt;test_backtrace+0x47&gt;</span><br><span class="line">	else</span><br><span class="line">		mon_backtrace(0, 0, 0);</span><br><span class="line">f010006b:	c7 44 24 08 00 00 00 	movl   $0x0,0x8(%esp)</span><br><span class="line">f0100072:	00 </span><br><span class="line">f0100073:	c7 44 24 04 00 00 00 	movl   $0x0,0x4(%esp)</span><br><span class="line">f010007a:	00 </span><br><span class="line">f010007b:	c7 04 24 00 00 00 00 	movl   $0x0,(%esp)</span><br><span class="line">f0100082:	e8 18 07 00 00       	call   f010079f &lt;mon_backtrace&gt;</span><br><span class="line">	cprintf(&quot;leaving test_backtrace %d\n&quot;, x);</span><br><span class="line">f0100087:	89 5c 24 04          	mov    %ebx,0x4(%esp)</span><br><span class="line">f010008b:	c7 04 24 1c 1a 10 f0 	movl   $0xf0101a1c,(%esp)</span><br><span class="line">f0100092:	e8 38 09 00 00       	call   f01009cf &lt;cprintf&gt;</span><br><span class="line">&#125;</span><br><span class="line">f0100097:	83 c4 14             	add    $0x14,%esp</span><br><span class="line">f010009a:	5b                   	pop    %ebx</span><br><span class="line">f010009b:	5d                   	pop    %ebp</span><br><span class="line">f010009c:	c3                   	ret</span><br></pre></td></tr></table></figure>
+
+<p>首先有一个sub 0x14,$esp这里是0x14字节，也就是5个32位字然后两个Push是两个字，然后call还会保存一个eip返回地址也是一个字，所以依次调用会有8个32位字进栈</p>
+<h3 id="Exercise-11-amp-amp-12"><a href="#Exercise-11-amp-amp-12" class="headerlink" title="Exercise 11&amp;&amp;12"></a>Exercise 11&amp;&amp;12</h3><blockquote>
+<p>Exercise 11. Implement the backtrace function as specified above. Use the same format as in the example, since otherwise the grading script will be confused. When you think you have it working right, run make grade to see if its output conforms to what our grading script expects, and fix it if it doesn’t. <em>After</em> you have handed in your Lab 1 code, you are welcome to change the output format of the backtrace function any way you like.</p>
+</blockquote>
+<blockquote>
+<p>Exercise 12. Modify your stack backtrace function to display, for each <code>eip</code>, the function name, source file name, and line number corresponding to that <code>eip</code>.</p>
+</blockquote>
+<p>第一个得结合内存中栈的具体保存方式来看，主要是要找到ebp和eip的关系，以及和传入的变量的关系，借用一张别人的图</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">|    ...    |</span><br><span class="line">|   args1   |</span><br><span class="line">|  ret  eip |</span><br><span class="line">| saved ebp | </span><br><span class="line">| saved ebx |</span><br><span class="line">|   args5   |</span><br><span class="line">|   args4   |</span><br><span class="line">|   args3   |</span><br><span class="line">|   args2   |</span><br><span class="line">|   args1   |</span><br><span class="line">|  ret  eip |</span><br><span class="line">| saved ebp | </span><br><span class="line">| saved ebx |</span><br><span class="line">|    ...    |</span><br></pre></td></tr></table></figure>
+
+<p>那么显然每次找到ebp,然后按照位置去找对应的eip和变量即可</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">mon_backtrace(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv, struct Trapframe *tf)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// Your code here.</span></span><br><span class="line">	cprintf(<span class="string">"Stack backtrace:\n"</span>);</span><br><span class="line">	<span class="keyword">uint32_t</span> *ebp=(<span class="keyword">uint32_t</span> *)read_ebp();</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Eipdebuginfo</span> <span class="title">info</span>;</span></span><br><span class="line">	<span class="keyword">while</span>(ebp)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">uint32_t</span> *eip=ebp+<span class="number">1</span>;</span><br><span class="line">		<span class="keyword">int</span> flag=debuginfo_eip((<span class="keyword">uintptr_t</span>)*eip,&amp;info);</span><br><span class="line">		cprintf(<span class="string">"  ebp %08x eip %08x args"</span>,ebp,*eip);</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=<span class="number">5</span>;++i)</span><br><span class="line">		&#123;</span><br><span class="line">			cprintf(<span class="string">" %08x"</span>,*(ebp+i+<span class="number">1</span>));</span><br><span class="line">		&#125;</span><br><span class="line">		cprintf(<span class="string">"\n         %s:%d: %.*s+%d\n"</span>,info.eip_file , info.eip_line , info.eip_fn_namelen , info.eip_fn_name , (ebp[<span class="number">1</span>]-info.eip_fn_addr));</span><br><span class="line"></span><br><span class="line">		ebp=(<span class="keyword">uint32_t</span> *)(*ebp);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>练习12只需要看一看对应的struct Eipdebuginfo的结构即可，然后去实现kdebug.c中的残缺代码即可</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Search within [lline, rline] for the line number stab.</span></span><br><span class="line"><span class="comment">// If found, set info-&gt;eip_line to the right line number.</span></span><br><span class="line"><span class="comment">// If not found, return -1.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Hint:</span></span><br><span class="line"><span class="comment">//	There's a particular stabs type used for line numbers.</span></span><br><span class="line"><span class="comment">//	Look at the STABS documentation and &lt;inc/stab.h&gt; to find</span></span><br><span class="line"><span class="comment">//	which one.</span></span><br><span class="line"><span class="comment">// Your code here.</span></span><br><span class="line">info-&gt;eip_file=stabstr+stabs[lfile].n_strx;</span><br><span class="line">stab_binsearch(stabs,&amp;lline,&amp;rline,N_SLINE,addr);</span><br><span class="line"><span class="keyword">if</span>(lline&gt;rline)</span><br><span class="line">&#123;</span><br><span class="line">	info-&gt;eip_line=stabs[rline].n_desc;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">&#125;<span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">	info-&gt;eip_line=stabs[rline].n_desc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里得去看看STAB的结构，然后模仿前面的调用去查找即可。</p>
+<p>最后评分:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">running JOS: (1.0s) </span><br><span class="line">  printf: OK </span><br><span class="line">  backtrace count: OK </span><br><span class="line">  backtrace arguments: OK </span><br><span class="line">  backtrace symbols: OK </span><br><span class="line">  backtrace lines: OK </span><br><span class="line">Score: 50/50</span><br></pre></td></tr></table></figure>
+
+<p>需要特别注意的是，如果你不是按照他给出的步骤安装的他给的gcc或者用gcc4.8，即使是相同的代码，你可能也拿不到满分。这个实验对编译链的要求非常严格，建议自己折腾一下，完全符合他的要求。</p>
+
+      
+    </div>
+
+    
+
+    
+      
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Leng Yu</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://codefish.info/2018/10/23/mit6-828-lab1/" title="mit6.828-lab1">https://codefish.info/2018/10/23/mit6-828-lab1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/operating-system/" rel="tag"># operating system</a>
+          
+            <a href="/tags/mit6-828/" rel="tag"># mit6.828</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/21/2018校赛初赛题解/" rel="next" title="2018校赛初赛题解">
+                <i class="fa fa-chevron-left"></i> 2018校赛初赛题解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/31/CS-APP-ProxyLab/" rel="prev" title="CS:APP ProxyLab">
+                CS:APP ProxyLab <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+  <p class="site-author-name" itemprop="name">Leng Yu</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+
+
+  <nav class="site-state motion-element">
+    
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+
+
+
+
+
+  <div class="links-of-author motion-element">
+    
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="https://github.com/moooyo" title="GitHub &rarr; https://github.com/moooyo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="mailto:lengyuchn@qq.com" title="E-Mail &rarr; mailto:lengyuchn@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+    
+  </div>
+
+
+
+  <div class="cc-license motion-element" itemprop="license">
+  
+  
+    
+  
+  
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+
+
+          
+          
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Booting-a-PC"><span class="nav-number">1.</span> <span class="nav-text">Booting a PC</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境配置"><span class="nav-number">1.1.</span> <span class="nav-text">环境配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#gcc"><span class="nav-number">1.1.1.</span> <span class="nav-text">gcc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#qemu"><span class="nav-number">1.1.2.</span> <span class="nav-text">qemu</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#推荐环境"><span class="nav-number">1.1.3.</span> <span class="nav-text">推荐环境</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些比较重要的点"><span class="nav-number">1.2.</span> <span class="nav-text">一些比较重要的点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PC的物理地址"><span class="nav-number">1.2.1.</span> <span class="nav-text">PC的物理地址</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PC-Bootstrap"><span class="nav-number">1.3.</span> <span class="nav-text">PC Bootstrap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-1"><span class="nav-number">1.3.1.</span> <span class="nav-text">Exercise 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-2"><span class="nav-number">1.3.2.</span> <span class="nav-text">Exercise 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-3"><span class="nav-number">1.3.3.</span> <span class="nav-text">Exercise 3</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Loading-the-Kernel"><span class="nav-number">1.4.</span> <span class="nav-text">Loading the Kernel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-4"><span class="nav-number">1.4.1.</span> <span class="nav-text">Exercise 4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-5"><span class="nav-number">1.4.2.</span> <span class="nav-text">Exercise 5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-6"><span class="nav-number">1.4.3.</span> <span class="nav-text">Exercise 6</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-7"><span class="nav-number">1.4.4.</span> <span class="nav-text">Exercise 7</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-8"><span class="nav-number">1.4.5.</span> <span class="nav-text">Exercise 8</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Challenge"><span class="nav-number">1.4.6.</span> <span class="nav-text">Challenge</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-Stack"><span class="nav-number">1.5.</span> <span class="nav-text">The Stack</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-10"><span class="nav-number">1.5.1.</span> <span class="nav-text">Exercise 10</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exercise-11-amp-amp-12"><span class="nav-number">1.5.2.</span> <span class="nav-text">Exercise 11&amp;&amp;12</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">leng yu</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+</body>
+</html>

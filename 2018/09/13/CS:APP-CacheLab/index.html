@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: ''
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="CacheLab这一章我们实战操作，编写一个模拟程序模拟存储器的缓存机制! 实验目标通过存储器模拟实验和矩阵优化实验，实践cs:app第六章的内容，体会存储器体系的原理及学习如何利用局部性去优化程序性能。 前置内容材料准备实验指导书实验材料 实验过程Reference Trace Files实验内容这一部分的实验中，需要补全给出的csim.c文件，实现一个与给出的样例程序csim-ref反馈一致的">
+<meta name="keywords" content="csapp,工程向,计算机体系">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS:APP CacheLab">
+<meta property="og:url" content="https://codefish.info/2018/09/13/CS:APP-CacheLab/index.html">
+<meta property="og:site_name" content="Yu">
+<meta property="og:description" content="CacheLab这一章我们实战操作，编写一个模拟程序模拟存储器的缓存机制! 实验目标通过存储器模拟实验和矩阵优化实验，实践cs:app第六章的内容，体会存储器体系的原理及学习如何利用局部性去优化程序性能。 前置内容材料准备实验指导书实验材料 实验过程Reference Trace Files实验内容这一部分的实验中，需要补全给出的csim.c文件，实现一个与给出的样例程序csim-ref反馈一致的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-28T15:41:39.012Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CS:APP CacheLab">
+<meta name="twitter:description" content="CacheLab这一章我们实战操作，编写一个模拟程序模拟存储器的缓存机制! 实验目标通过存储器模拟实验和矩阵优化实验，实践cs:app第六章的内容，体会存储器体系的原理及学习如何利用局部性去优化程序性能。 前置内容材料准备实验指导书实验材料 实验过程Reference Trace Files实验内容这一部分的实验中，需要补全给出的csim.c文件，实现一个与给出的样例程序csim-ref反馈一致的">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Yu" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="https://codefish.info/2018/09/13/CS:APP-CacheLab/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  
+  <title>CS:APP CacheLab | Yu</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Yu</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+</div>
+    </header>
+
+    
+  
+  
+
+  
+
+  <a href="https://github.com/moooyo" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewbox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a>
+
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://codefish.info/2018/09/13/CS:APP-CacheLab/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Leng Yu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Yu">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CS:APP CacheLab
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-09-13 07:35:10" itemprop="dateCreated datePublished" datetime="2018-09-13T07:35:10+08:00">2018-09-13</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-28 23:41:39" itemprop="dateModified" datetime="2019-07-28T23:41:39+08:00">2019-07-28</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/csapp/" itemprop="url" rel="index"><span itemprop="name">csapp</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="CacheLab"><a href="#CacheLab" class="headerlink" title="CacheLab"></a>CacheLab</h1><p>这一章我们实战操作，编写一个模拟程序模拟存储器的缓存机制!</p>
+<h2 id="实验目标"><a href="#实验目标" class="headerlink" title="实验目标"></a>实验目标</h2><p>通过存储器模拟实验和矩阵优化实验，实践cs:app第六章的内容，体会存储器体系的原理及学习如何利用局部性去优化程序性能。</p>
+<h2 id="前置内容"><a href="#前置内容" class="headerlink" title="前置内容"></a>前置内容</h2><h2 id="材料准备"><a href="#材料准备" class="headerlink" title="材料准备"></a>材料准备</h2><p><a href="http://csapp.cs.cmu.edu/3e/cachelab.pdf" target="_blank" rel="noopener">实验指导书</a><br><a href="http://csapp.cs.cmu.edu/3e/cachelab-handout.tar" target="_blank" rel="noopener">实验材料</a></p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="Reference-Trace-Files"><a href="#Reference-Trace-Files" class="headerlink" title="Reference Trace Files"></a>Reference Trace Files</h3><h4 id="实验内容"><a href="#实验内容" class="headerlink" title="实验内容"></a>实验内容</h4><p>这一部分的实验中，需要补全给出的csim.c文件，实现一个与给出的样例程序csim-ref反馈一致的缓存模拟器。<br>在这一部分的实验中需要接触到valgrind输出的文件,大概格式为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">I 0400d7d4,8</span><br><span class="line">  M 0421c7f0,4</span><br><span class="line">  L 04f6b868,8</span><br><span class="line">  S 7ff0005c8,8</span><br></pre></td></tr></table></figure>
+
+<p>其格式为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[space]operation address,size</span><br></pre></td></tr></table></figure>
+
+<p>operation部分如果为”I”表示为指令读入，这是不影响缓存系统的。”M”表示修改,”L”表示读取,”S”表示写入。显然”M”可以看做”LS”的组合。address是一个<strong>64位</strong>的地址，size表示读入的地址块大小(实际上本实验中并未用到)。<br>现在需要模拟一个缓存系统，大致可以参考书p426的图6-25，统计命中，未命中，”驱逐(淘汰)”的次数，并与标准样例进行比较，得到分数(满分27)。</p>
+<h4 id="注意细节"><a href="#注意细节" class="headerlink" title="注意细节"></a>注意细节</h4><ul>
+<li><strong>本次实验的地址为64位地址，以16进制给出</strong></li>
+<li>I是指令读，不算入内存操作</li>
+<li>M一定会导致一次hit</li>
+<li>利用scanf类似的函数读入给出的文件的时候”%s,%c”这样的format是无效的，后面的%c实际上是读不到的，需要自己写read函数</li>
+<li>命令行解析很毒瘤，请使用getop</li>
+<li>实验使用的make规则把所有warning看做error，所以该加括号的地方请加上括号.</li>
+</ul>
+<h4 id="参考代码"><a href="#参考代码" class="headerlink" title="参考代码"></a>参考代码</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"cachelab.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;getopt.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> true 1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> false 0</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> bool int</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> maxFileSize 300</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> maxAddrSize 30+5</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> maxBufSize 300</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Debug 0</span></span><br><span class="line"><span class="keyword">char</span> readBuf[maxBufSize];</span><br><span class="line"><span class="keyword">int</span> args_s,args_E,args_b;</span><br><span class="line"><span class="keyword">bool</span> flag_h,flag_v;</span><br><span class="line"><span class="keyword">int</span> <span class="keyword">args_t</span>;</span><br><span class="line"><span class="keyword">char</span> tracefile[maxFileSize];</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">parseConsole</span><span class="params">(<span class="keyword">int</span> argc,<span class="keyword">char</span> *args[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> ch;</span><br><span class="line">    <span class="keyword">while</span>((ch=getopt(argc,args,<span class="string">"hvs:E:b:t:"</span>))!=<span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">switch</span> (ch)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'h'</span>:flag_h=<span class="literal">true</span>;<span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'v'</span>:flag_v=<span class="literal">true</span>;<span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'s'</span>:<span class="built_in">sscanf</span>(optarg,<span class="string">"%d"</span>,&amp;args_s);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'E'</span>:<span class="built_in">sscanf</span>(optarg,<span class="string">"%d"</span>,&amp;args_E);<span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'b'</span>:<span class="built_in">sscanf</span>(optarg,<span class="string">"%d"</span>,&amp;args_b);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'t'</span>:<span class="built_in">sscanf</span>(optarg,<span class="string">"%s"</span>,tracefile);<span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">CacheLine</span>&#123;</span></span><br><span class="line">    <span class="keyword">bool</span> isAlive;</span><br><span class="line">    <span class="keyword">int</span> flag;</span><br><span class="line">    <span class="keyword">int</span> acceseTime;</span><br><span class="line">&#125;Line;</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">Cache</span>&#123;</span></span><br><span class="line">    Line *line;</span><br><span class="line">&#125;Cache;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setCache</span><span class="params">(Cache *cache, <span class="keyword">int</span> cacheLineNumber)</span> </span>&#123;</span><br><span class="line">    cache-&gt;line = (Line *) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Line) * cacheLineNumber);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cacheLineNumber; ++i) &#123;</span><br><span class="line">        cache-&gt;line[i].isAlive = <span class="literal">false</span>;</span><br><span class="line">        cache-&gt;line[i].flag = <span class="number">0</span>;</span><br><span class="line">        cache-&gt;line[i].acceseTime = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">parseFlag</span><span class="params">(<span class="keyword">char</span>* addr, <span class="keyword">int</span>* flag, <span class="keyword">int</span>* cacheSetFlag)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> tempAddr;</span><br><span class="line">    <span class="built_in">sscanf</span>(addr,<span class="string">"%x"</span>,&amp;tempAddr);</span><br><span class="line">    tempAddr=tempAddr&gt;&gt;args_b;</span><br><span class="line">    <span class="keyword">if</span>(Debug)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%x\n"</span>,tempAddr);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> retFlag,retCacheSetFlag;</span><br><span class="line">    retFlag=retCacheSetFlag=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=args_s<span class="number">-1</span>;i&gt;=<span class="number">0</span>;--i)</span><br><span class="line">    &#123;</span><br><span class="line">        retCacheSetFlag=retCacheSetFlag&lt;&lt;<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(((tempAddr&gt;&gt;i)&amp;<span class="number">1</span>)==<span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            retCacheSetFlag+=<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    tempAddr=tempAddr&gt;&gt;args_s;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="keyword">args_t</span><span class="number">-1</span>;i&gt;=<span class="number">0</span>;--i)</span><br><span class="line">    &#123;</span><br><span class="line">        retFlag=retFlag&lt;&lt;<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(((tempAddr&gt;&gt;i)&amp;<span class="number">1</span>)==<span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            retFlag+=<span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(Debug)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Flag: %d\n"</span>,retFlag);</span><br><span class="line">    &#125;</span><br><span class="line">    *flag=retFlag;</span><br><span class="line">    *cacheSetFlag=retCacheSetFlag;</span><br><span class="line">    <span class="keyword">return</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">readData</span><span class="params">(<span class="keyword">char</span> *op,<span class="keyword">char</span> *addr,<span class="keyword">int</span> *size,FILE* file)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//char ch;</span></span><br><span class="line">    <span class="comment">//while((ch==getchar()))</span></span><br><span class="line">    <span class="keyword">char</span> *flag=<span class="literal">NULL</span>;</span><br><span class="line">    flag=fgets(readBuf,<span class="number">60</span>,file);</span><br><span class="line">    *op=<span class="string">'#'</span>;</span><br><span class="line">    <span class="keyword">if</span>(flag==<span class="literal">NULL</span>||feof(file))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> len=<span class="built_in">strlen</span>(readBuf);</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>;i&lt;len;++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(readBuf[i]==<span class="string">'\r'</span>||readBuf[i]==<span class="string">'\n'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(readBuf[i]==<span class="string">' '</span>&amp;&amp;*op!=<span class="string">'#'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            i++;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(readBuf[i]==<span class="string">' '</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            *op=readBuf[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> k=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(;i&lt;len;++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(readBuf[i]==<span class="string">'\r'</span>||readBuf[i]==<span class="string">'\n'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(readBuf[i]==<span class="string">','</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            i++;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            addr[k++]=readBuf[i];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    addr[k]=<span class="string">'\0'</span>;</span><br><span class="line">    <span class="built_in">sscanf</span>(readBuf+i,<span class="string">"%d"</span>,size);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *args[])</span> </span>&#123;</span><br><span class="line">    flag_h = flag_v = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">int</span> acParse = parseConsole(argc, args);</span><br><span class="line">    <span class="keyword">if</span> (acParse != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Parse args error!\n"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">args_t</span>=<span class="number">64</span>-args_b-args_s;</span><br><span class="line">    <span class="keyword">int</span> cacheLineNumber = args_E;</span><br><span class="line">    <span class="keyword">int</span> cacheSetNumber = <span class="built_in">pow</span>(<span class="number">2</span>, args_s);</span><br><span class="line">    Cache *cache = (Cache *) <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Cache) * cacheSetNumber);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cacheSetNumber; ++i) &#123;</span><br><span class="line">        <span class="comment">//cache[i].init(cacheLineNumber);</span></span><br><span class="line">        setCache(&amp;cache[i], cacheLineNumber);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    FILE *stream;</span><br><span class="line">    stream = fopen(tracefile, <span class="string">"r"</span>);</span><br><span class="line">    <span class="keyword">if</span> (stream == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"NO such file!\n"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//lseek(stream,0,SEEK_SET);</span></span><br><span class="line">    <span class="keyword">char</span> op;</span><br><span class="line">    <span class="keyword">char</span> addr[maxAddrSize];</span><br><span class="line">    <span class="keyword">int</span> size;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> miss_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> hit_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> eviction_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> time_count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span>(readData(&amp;op,addr,&amp;size,stream)==<span class="literal">false</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        time_count++;</span><br><span class="line">        <span class="keyword">if</span> (op == <span class="string">'I'</span>) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> flag, cacheSetFlag;</span><br><span class="line">        parseFlag(addr, &amp;flag, &amp;cacheSetFlag);</span><br><span class="line">        <span class="keyword">bool</span> ac = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">bool</span> evictionNum = <span class="number">-1</span>;</span><br><span class="line">        <span class="keyword">bool</span> haveZero = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cacheLineNumber; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (cache[cacheSetFlag].line[i].isAlive == <span class="literal">true</span> &amp;&amp; cache[cacheSetFlag].line[i].flag == flag) &#123;</span><br><span class="line">                ac = <span class="literal">true</span>;</span><br><span class="line">                hit_count++;</span><br><span class="line">                cache[cacheSetFlag].line[i].acceseTime = time_count;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (haveZero == <span class="literal">false</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (cache[cacheSetFlag].line[i].isAlive == <span class="literal">false</span>) &#123;</span><br><span class="line">                    haveZero = <span class="literal">true</span>;</span><br><span class="line">                    evictionNum = i;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (evictionNum == <span class="number">-1</span>) &#123;</span><br><span class="line">                        evictionNum = i;</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cache[cacheSetFlag].line[i].acceseTime &lt;</span><br><span class="line">                               cache[cacheSetFlag].line[evictionNum].acceseTime) &#123;</span><br><span class="line">                        evictionNum = i;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//evicition</span></span><br><span class="line">        <span class="keyword">if</span> (ac == <span class="literal">false</span>) &#123;</span><br><span class="line">            miss_count++;</span><br><span class="line">            <span class="keyword">if</span> (haveZero == <span class="literal">false</span>) &#123;</span><br><span class="line">                eviction_count++;</span><br><span class="line">            &#125;</span><br><span class="line">            cache[cacheSetFlag].line[evictionNum].isAlive = <span class="literal">true</span>;</span><br><span class="line">            cache[cacheSetFlag].line[evictionNum].flag = flag;</span><br><span class="line">            cache[cacheSetFlag].line[evictionNum].acceseTime = time_count;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (op == <span class="string">'M'</span>) &#123;</span><br><span class="line">            hit_count++;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (flag_v == <span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"%c %s"</span>, op, addr);</span><br><span class="line">            <span class="keyword">if</span> (ac) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">" hit"</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">" miss"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> ((!haveZero&amp;&amp;!ac) == <span class="literal">true</span>) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">" eviction"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (op == <span class="string">'M'</span>) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">" hit"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    printSummary(hit_count, miss_count, eviction_count);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Optimizing-Matrix-Transpose"><a href="#Optimizing-Matrix-Transpose" class="headerlink" title="Optimizing Matrix Transpose"></a>Optimizing Matrix Transpose</h3><h4 id="实验内容-1"><a href="#实验内容-1" class="headerlink" title="实验内容"></a>实验内容</h4><p>这一部分要利用所学的缓存部分的知识，然后采用各种蛇皮操作来降低矩阵转置过程中的缓存不命中的数量，主要是分块.</p>
+<h4 id="注意细节-1"><a href="#注意细节-1" class="headerlink" title="注意细节"></a>注意细节</h4><ul>
+<li>这个实验非常毒瘤，请参考<a href="https://wdxtub.com/2016/04/16/thick-csapp-lab-4/" target="_blank" rel="noopener">不周山之CacheLab的讲解,虽然这个讲解也很毒瘤</a></li>
+<li>不止在读取矩阵的时候需要操作缓存，写入到新矩阵的时候也需要操作缓存</li>
+<li><strong>注意”抖动”</strong>带来的多余miss</li>
+<li>注意对角线带来的重复请求同一个组导致”驱逐(淘汰)”</li>
+<li>三种情况应该分开处理，如果谋求一个完美的没有做分开处理的程序，几乎一定拿不到满分</li>
+<li>即使你做了以上这些，你还是拿不到满分($64\times 64$非常毒瘤)</li>
+</ul>
+<h4 id="参考代码-1"><a href="#参考代码-1" class="headerlink" title="参考代码"></a>参考代码</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">transpose_submit</span><span class="params">(<span class="keyword">int</span> M, <span class="keyword">int</span> N, <span class="keyword">int</span> A[N][M], <span class="keyword">int</span> B[M][N])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> t1, t2, t3, t4;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; N / <span class="number">8</span>; ++i) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; M / <span class="number">8</span>; ++j) &#123;</span><br><span class="line">            <span class="keyword">if</span> (M == <span class="number">32</span>) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">0</span>; r &lt; <span class="number">8</span>; ++r) &#123;</span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> s = <span class="number">0</span>; s &lt; <span class="number">8</span>; ++s) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (i == j &amp;&amp; r == s) &#123;</span><br><span class="line">                            t1 = r;</span><br><span class="line">                            t2 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + s];</span><br><span class="line">                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                            t3 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + s];</span><br><span class="line">                            B[j * <span class="number">8</span> + s][i * <span class="number">8</span> + r] = t3;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (i == j) &#123;</span><br><span class="line">                        B[j * <span class="number">8</span> + t1][i * <span class="number">8</span> + t1] = t2;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//#1</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">0</span>; r &lt; <span class="number">4</span>; ++r) &#123;</span><br><span class="line">                    t1 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">0</span>];</span><br><span class="line">                    t2 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">1</span>];</span><br><span class="line">                    t3 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">2</span>];</span><br><span class="line">                    t4 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">0</span>][i * <span class="number">8</span> + r] = t1;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">1</span>][i * <span class="number">8</span> + r] = t2;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">2</span>][i * <span class="number">8</span> + r] = t3;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">3</span>][i * <span class="number">8</span> + r] = t4;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//#2</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">0</span>; r &lt; <span class="number">4</span>; ++r) &#123;</span><br><span class="line">                    t1 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">4</span>];</span><br><span class="line">                    t2 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">5</span>];</span><br><span class="line">                    t3 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">6</span>];</span><br><span class="line">                    t4 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">7</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">4</span>][i * <span class="number">8</span> + r] = t1;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">5</span>][i * <span class="number">8</span> + r] = t2;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">6</span>][i * <span class="number">8</span> + r] = t3;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">7</span>][i * <span class="number">8</span> + r] = t4;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">//#3</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">4</span>; r &lt; <span class="number">8</span>; ++r) &#123;</span><br><span class="line">                    t1 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">0</span>];</span><br><span class="line">                    t2 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">1</span>];</span><br><span class="line">                    t3 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">2</span>];</span><br><span class="line">                    t4 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">3</span>];</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">0</span>][i * <span class="number">8</span> + r] = t1;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">1</span>][i * <span class="number">8</span> + r] = t2;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">2</span>][i * <span class="number">8</span> + r] = t3;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">3</span>][i * <span class="number">8</span> + r] = t4;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">//#4</span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">4</span>; r &lt; <span class="number">8</span>; ++r) &#123;</span><br><span class="line">                    t1 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">4</span>];</span><br><span class="line">                    t2 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">5</span>];</span><br><span class="line">                    t3 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">6</span>];</span><br><span class="line">                    t4 = A[i * <span class="number">8</span> + r][j * <span class="number">8</span> + <span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">4</span>][i * <span class="number">8</span> + r] = t1;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">5</span>][i * <span class="number">8</span> + r] = t2;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">6</span>][i * <span class="number">8</span> + r] = t3;</span><br><span class="line">                    B[j * <span class="number">8</span> + <span class="number">7</span>][i * <span class="number">8</span> + r] = t4;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; N / <span class="number">8</span> * <span class="number">8</span>; ++i) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; M % <span class="number">8</span>; ++j) &#123;</span><br><span class="line">            B[M / <span class="number">8</span> * <span class="number">8</span> + j][i] = A[i][M / <span class="number">8</span> * <span class="number">8</span> + j];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; M; ++j) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = N / <span class="number">8</span> * <span class="number">8</span>; i &lt; N; ++i) &#123;</span><br><span class="line">            B[j][i] = A[i][j];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意，这份代码得分为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Trans perf 32x32           8.0         8         287</span><br><span class="line">Trans perf 64x64           3.4         8        1699</span><br><span class="line">Trans perf 61x67           9.3        10        2067</span><br></pre></td></tr></table></figure>
+
+<p>如果把分块从$8\times 8$在$61\times 67$的时候改为$16 \times 16$,那么$61\times 67$也可以得到满分，但是$64 \times 64$我还没发现拿满分的办法。</p>
+
+      
+    </div>
+
+    
+
+    
+      
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Yu.Leng</li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    
+    <a href="https://codefish.info/2018/09/13/CS:APP-CacheLab/" title="CS:APP CacheLab">https://codefish.info/2018/09/13/CS:APP-CacheLab/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/csapp/" rel="tag"># csapp</a>
+          
+            <a href="/tags/工程向/" rel="tag"># 工程向</a>
+          
+            <a href="/tags/计算机体系/" rel="tag"># 计算机体系</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/08/CS:APP第五章-总结-2/" rel="next" title="CS:APP 第五章-总结">
+                <i class="fa fa-chevron-left"></i> CS:APP 第五章-总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/01/CS:APP-ShellLab/" rel="prev" title="CS:APP ShellLab">
+                CS:APP ShellLab <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  
+  <p class="site-author-name" itemprop="name">Leng Yu</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+
+
+  <nav class="site-state motion-element">
+    
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+
+
+
+  <div class="feed-link motion-element">
+    <a href="/atom.xml" rel="alternate">
+      <i class="fa fa-rss"></i>RSS
+    </a>
+  </div>
+
+
+
+
+
+  <div class="links-of-author motion-element">
+    
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="https://github.com/moooyo" title="GitHub &rarr; https://github.com/moooyo" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+      
+        
+      
+        <a href="mailto:lengyuchn@qq.com" title="E-Mail &rarr; mailto:lengyuchn@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+    
+  </div>
+
+
+
+  <div class="cc-license motion-element" itemprop="license">
+  
+  
+    
+  
+  
+  
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+
+
+          
+          
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CacheLab"><span class="nav-number">1.</span> <span class="nav-text">CacheLab</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验目标"><span class="nav-number">1.1.</span> <span class="nav-text">实验目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#前置内容"><span class="nav-number">1.2.</span> <span class="nav-text">前置内容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#材料准备"><span class="nav-number">1.3.</span> <span class="nav-text">材料准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验过程"><span class="nav-number">1.4.</span> <span class="nav-text">实验过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference-Trace-Files"><span class="nav-number">1.4.1.</span> <span class="nav-text">Reference Trace Files</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实验内容"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">实验内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意细节"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">注意细节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考代码"><span class="nav-number">1.4.1.3.</span> <span class="nav-text">参考代码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Optimizing-Matrix-Transpose"><span class="nav-number">1.4.2.</span> <span class="nav-text">Optimizing Matrix Transpose</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#实验内容-1"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">实验内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意细节-1"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">注意细节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#参考代码-1"><span class="nav-number">1.4.2.3.</span> <span class="nav-text">参考代码</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">leng yu</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a></div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+  
+
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$', '$'], ['\\(', '\\)'] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+      
+      equationNumbers: {
+        autoNumber: 'AMS'
+      }
+    }
+  });
+
+  MathJax.Hub.Register.StartupHook('TeX Jax Ready', function() {
+    MathJax.InputJax.TeX.prefilterHooks.Add(function(data) {
+      if (data.display) {
+        var next = data.script.nextSibling;
+        while (next && next.nodeName.toLowerCase() === '#text') {
+          next = next.nextSibling;
+        }
+        if (next && next.nodeName.toLowerCase() === 'br') {
+          next.parentNode.removeChild(next);
+        }
+      }
+    });
+  });
+
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for (i = 0; i < all.length; i += 1) {
+      element = document.getElementById(all[i].inputID + '-Frame').parentNode;
+      if (element.nodeName.toLowerCase() == 'li') {
+        element = element.parentNode;
+      }
+      element.classList.add('has-jax');
+    }
+  });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+    
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+</body>
+</html>
